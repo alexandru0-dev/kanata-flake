@@ -14,8 +14,7 @@
             inherit system overlays;
           };
         in
-        with pkgs;
-        {
+        rec {
           packages.default = packages.kanata;
 
           packages.kanata = pkgs.kanata;

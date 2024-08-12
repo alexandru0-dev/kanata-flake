@@ -1,0 +1,45 @@
+diff --git a/Cargo.lock b/Cargo.lock
+index 0dec6db..1beab1e 100644
+--- a/Cargo.lock
++++ b/Cargo.lock
+@@ -645,8 +645,7 @@ dependencies = [
+ [[package]]
+ name = "karabiner-driverkit"
+ version = "0.1.3"
+-source = "registry+https://github.com/rust-lang/crates.io-index"
+-checksum = "7cb3342c9a82d919c5ee0915ed8f7a0870fb14ad254e7984c0d174a5e4972932"
++source = "git+https://github.com/alexandru0-dev/driverkit?branch=feat/feature_flags#8fcf19eb65ef1b87ef2bc91c6bb646edda57ec85"
+ dependencies = [
+  "cc",
+  "os_info",
+diff --git a/Cargo.toml b/Cargo.toml
+index 3b3f165..1770d67 100644
+--- a/Cargo.toml
++++ b/Cargo.toml
+@@ -60,7 +60,7 @@ kanata-tcp-protocol = "0.161.1"
+ # kanata-tcp-protocol = { path = "tcp_protocol" }
+ 
+ [target.'cfg(target_os = "macos")'.dependencies]
+-karabiner-driverkit = "0.1.3"
++karabiner-driverkit = { git = "https://github.com/alexandru0-dev/driverkit", branch = "feat/feature_flags", default_features = false }
+ 
+ [target.'cfg(target_os = "linux")'.dependencies]
+ signal-hook = "0.3.14"
+@@ -87,7 +87,7 @@ indoc = { version = "2.0.4", optional = true }
+ regex = { version = "1.10.4", optional = true }
+ 
+ [features]
+-default = ["tcp_server"]
++default = ["tcp_server", "macos_dext"]
+ perf_logging = []
+ tcp_server = ["serde_json"]
+ win_sendinput_send_scancodes = []
+@@ -97,6 +97,8 @@ cmd = ["kanata-parser/cmd"]
+ interception_driver = ["kanata-interception", "kanata-parser/interception_driver"]
+ simulated_output = ["indoc"]
+ wasm = [ "instant/wasm-bindgen" ]
++macos_kext = [ "karabiner-driverkit/kext" ]
++macos_dext = [ "karabiner-driverkit/dext" ]
+ 
+ [profile.release]
+ opt-level = "z"

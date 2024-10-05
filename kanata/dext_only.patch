@@ -1,0 +1,30 @@
+diff --git a/karabiner-driverkit/build.rs b/karabiner-driverkit/build.rs
+index c3ccf9f..567e405 100644
+--- a/karabiner-driverkit/build.rs
++++ b/karabiner-driverkit/build.rs
+@@ -9,22 +9,9 @@ fn main() {
+         .shared_flag(true)
+         .flag("-fPIC");
+ 
+-    if let os_info::Version::Semantic(major, minor, patch) = os_info::get().version() {
+-        if major <= &10 {
+-            println!("macOS version {major}.{minor}.{patch}, using kext...");
+-            // kext
+-            build.flag("-D");
+-            build.flag("USE_KEXT");
+-            build.include("c_src/Karabiner-VirtualHIDDevice/dist/include");
+-        } else {
+-            println!("macOS version {major}.{minor}.{patch}, using dext...");
+-            // dext
+-            build.include(
+-                "c_src/Karabiner-DriverKit-VirtualHIDDevice/include/pqrs/karabiner/driverkit",
+-            );
+-            build.include("c_src/Karabiner-DriverKit-VirtualHIDDevice/src/Client/vendor/include");
+-        }
+-    }
++    // dext
++    build.include("c_src/Karabiner-DriverKit-VirtualHIDDevice/include/pqrs/karabiner/driverkit");
++    build.include("c_src/Karabiner-DriverKit-VirtualHIDDevice/src/Client/vendor/include");
+ 
+     build.compile("driverkit");
+ 

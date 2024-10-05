@@ -4,14 +4,12 @@
 , rustPlatform
 , fetchFromGitHub
 , withCmd ? false
-, withKarabinerKext ? false
 }:
-
-lib.throwIf (!stdenv.isDarwin && withKarabinerKext) "Karabiner Kext is only compatible with Darwin systems"
 
 rustPlatform.buildRustPackage rec {
   pname = "kanata";
   version = "1.6.1";
+
 
   src = fetchFromGitHub {
     owner = "jtroo";
@@ -20,27 +18,25 @@ rustPlatform.buildRustPackage rec {
     sha256 = "sha256-Kuxy6lGzImYYujuJwZZdfuu3X7/PJNOJefeZ0hVJaAA=";
   };
 
-  patches = [ ./lock.patch ];
-
-  cargoLock = {
-    lockFile = ./Cargo.lock;
-    outputHashes = {
-      "karabiner-driverkit-0.1.3" = "sha256-HAIWkO6NX8xZDda/1BjCUQRBSIVyxK0hMvM2+Ctkqvs=";
-    };
-  };
+  cargoPatches = [ ./time.patch ]; # needed for rust 1.18.0+
 
   cargoHash =
     if stdenv.isLinux
-    then "sha256-R2lHg+I8Sry3/n8vTfPpDysKCKMDUvxyMKRhEQKDqS0="
-    else ""; # for darwin is already set
+    then "sha256-R2lHg+I8Sry3/n8vTfPpDysKCKMDUvxyMKRhEQKDqS0=" # TODO: fix sha
+    else "sha256-ERlo5Lvj5xn13DY3hocoXZq8yWnglIpaMNVBIYjAoTI=";
 
   buildInputs = lib.optionals stdenv.isDarwin [ darwin.apple_sdk.frameworks.IOKit ];
 
-  buildNoDefaultFeatures = true;
+  buildFeatures = lib.optional withCmd "cmd";
 
-  buildFeatures = ["tcp_server"] ++
-    (if withKarabinerKext then ["macos_kext"] else ["macos_dext"]) ++
-    lib.optional withCmd ["cmd"];
+  postPatch = lib.optional stdenv.isDarwin ''
+    pushd $cargoDepsCopy/karabiner-driverkit
+    oldHash=$(sha256sum build.rs | cut -d " " -f 1)
+    patch -p2 -i ${./dext_only.patch}
+    substituteInPlace .cargo-checksum.json \
+      --replace-fail $oldHash $(sha256sum build.rs | cut -d " " -f 1)
+    popd
+  '';
 
   postInstall = ''
     install -Dm 444 assets/kanata-icon.svg $out/share/icons/hicolor/scalable/apps/kanata.svg
@@ -53,6 +49,6 @@ rustPlatform.buildRustPackage rec {
     maintainers = with maintainers; [ bmanuel linj ];
     platforms = platforms.unix;
     mainProgram = "kanata";
+    #broken = stdenv.hostPlatform.isx86;
   };
 }
-

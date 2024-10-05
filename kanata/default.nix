@@ -22,7 +22,7 @@ rustPlatform.buildRustPackage rec {
 
   cargoHash =
     if stdenv.isLinux
-    then "sha256-R2lHg+I8Sry3/n8vTfPpDysKCKMDUvxyMKRhEQKDqS0=" # TODO: fix sha
+    then "sha256-3dcjcEg/a6cJmqAYjKCkk5kUO0V9ek155GQBQkSpwB8="
     else "sha256-ERlo5Lvj5xn13DY3hocoXZq8yWnglIpaMNVBIYjAoTI=";
 
   buildInputs = lib.optionals stdenv.isDarwin [ darwin.apple_sdk.frameworks.IOKit ];
@@ -49,6 +49,5 @@ rustPlatform.buildRustPackage rec {
     maintainers = with maintainers; [ bmanuel linj ];
     platforms = platforms.unix;
     mainProgram = "kanata";
-    #broken = stdenv.hostPlatform.isx86;
   };
 }
